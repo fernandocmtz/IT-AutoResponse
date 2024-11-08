@@ -1,0 +1,13 @@
+{
+  "name": "your-application-name",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "moment": "^2.30.1"
+  }
+}
