@@ -19,11 +19,20 @@ function passwordResetCase(expiryDate, today) {
     return { description, resolution };
 }
 
+function authenticationErrorCase(today) {
+    // Create description and resolution for authentication error case.
+    const description = `The client called to report that they are encountering an 'CAS Validation Failed' error when attempting to sign in to Jagnet.`;
+    const fcmNumber = generateFcmNumber(today);
+    const resolution = `${fcmNumber}: Verified client information. Informed client of username format for signing into Jagnet.`;
+    const internalNotes = `Common reasons a client may receive an 'CAS Validation Failed' error include: Entering their STC email address in the 'username' field, Double-clicking the 'Enter' button to sign in, Browser cache needs to be cleared. If the client's password is not expired and you confirmed they are entering the correct information, advise them to clear the cache and cookies from their browser or try using a different browser or device.`;
+    return { description, resolution, internalNotes };
+}
+
 function disabledAccountCase(today) {
     // Create description and resolution for disabled account case.
     return new Promise(resolve => {
         rl.question("When was the last semester the client attended STC? (e.g., Fall 2020, Spring 2023): ", lastSemester => {
-            const description = `The client is requesting support because they have a disabled account. The client is not a student since 2022 but has a current application for this semester. The last semester the client attended was ${lastSemester}.`;
+            const description = `The client is requesting support because they have a disabled account. The last semester the client attended was ${lastSemester}, but has a recent cleared application for this semester.`;
             const fcmNumber = generateFcmNumber(today);
             const resolution = `${fcmNumber}: Verified client information. Re-enabled account. Assisted client in resetting password online. Verified client could sign in. Registered the two sign-in methods on the MyPassword Assistant.`;
             resolve({ description, resolution });
@@ -58,7 +67,7 @@ function main() {
             console.log("5. Authentication Error");
 
             rl.question("Enter the number corresponding to the ticket type: ", async ticketType => {
-                let description, resolution;
+                let description, resolution, internalNotes;
 
                 switch (ticketType) {
                     case '1':
@@ -68,8 +77,9 @@ function main() {
                     case '2':
                         ({ description, resolution } = await disabledAccountCase(today));
                         break;
-                    case '4':
-                        ({ description, resolution } = await passwordResetEmailCase(today));
+                    case '5':
+                        ({ description, resolution, internalNotes } = authenticationErrorCase(today));
+                        console.log("\nInternal Notes:\n", internalNotes);
                         break;
                     default:
                         console.log("This ticket type is not yet implemented.");
